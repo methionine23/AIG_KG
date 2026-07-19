@@ -6,7 +6,10 @@ data/vocab/
 *.parquet
 *.duckdb
 *.db
-# (allow small sample/synthetic fixtures explicitly if needed via: git add -f)
+
+# Allow small SYNTHETIC (PHI-free) test fixtures to be committed
+!tests/fixtures/
+!tests/fixtures/*.csv
 
 # Python
 __pycache__/
