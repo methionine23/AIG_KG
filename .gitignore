@@ -1,0 +1,29 @@
+# === Data governance: NEVER commit patient-level data or licensed vocab ===
+data/raw/
+data/staging/
+data/vocab/
+*.csv
+*.parquet
+*.duckdb
+*.db
+# (allow small sample/synthetic fixtures explicitly if needed via: git add -f)
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Neo4j / local stores
+*.dump
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
