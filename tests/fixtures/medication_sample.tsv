@@ -1,0 +1,8 @@
+CURR_CLINIC	Order_Date	Order_Time	Order_Type	Order_Type_Desc	Order_Code	Order_Name	Order_ID
+P001	2020-02-01	09:00	RX	Medication	MED0198	Tafamidis 61 mg capsule	ORD5001
+P001	2018-07-23	10:00	RX	Medication	MED4297	Furosemide 40 mg tablet	ORD5002
+P002	2019-12-02	15:00	RX	Medication	MED0198	Tafamidis 61 mg capsule	ORD5003
+P004	2021-08-19	09:45	RX	Medication	MED7214	Metformin 500 mg tablet	ORD5004
+P003	2017-02-14	11:30	RX	Medication	MED0803	Gabapentin 300 mg capsule	ORD5005
+P001	2020-01-15	08:00	LAB	Laboratory	LAB033	NT-proBNP	ORD5006
+P004	2021-08-19	09:30	IMG	Imaging	IMG100	Echocardiogram	ORD5007

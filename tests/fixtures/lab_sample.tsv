@@ -1,0 +1,8 @@
+CURR_CLINIC	Lab_Date	Lab_Time	Test_Code	TestDesc	Lab_Panel_Code	Lab_Panel_Desc	Lab_Panel_Type	Sample_Type_Desc	Resultn	Resultc	Accession	Units	Ranges	Rang_Ind	Range_Ind_Description
+P004	2021-08-19	09:30	GLU	Glucose fasting	BMP	Basic metabolic panel	Chem	Serum	152		ACC001	mg/dL	70-99	H	High
+P004	2021-08-19	09:30	A1C	Hemoglobin A1c	HBA1C	HbA1c panel	Chem	Whole blood	8.2		ACC002	%	4.0-5.6	H	High
+P004	2022-02-10	10:15	A1C	Hemoglobin A1c	HBA1C	HbA1c panel	Chem	Whole blood	7.4		ACC010	%	4.0-5.6	H	High
+P002	2019-11-30	14:00	GLU	Glucose fasting	BMP	Basic metabolic panel	Chem	Serum	6.1		ACC020	mmol/L	3.9-5.5	H	High
+P001	2020-01-15	08:00	PBNP	NT-proBNP	CARD	Cardiac panel	Chem	Serum	2450		ACC030	pg/mL	0-125	H	High
+P001	2020-01-15	08:00	TROP	Troponin T	CARD	Cardiac panel	Chem	Serum		<0.01	ACC031	ng/mL	0-0.01	N	Normal
+P003	2017-02-14	11:00	COV	SARS-CoV-2 PCR	MICRO	Microbiology	Micro	Nasal		Negative	ACC040				

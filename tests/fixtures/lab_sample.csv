@@ -1,8 +1,0 @@
-PatientID,CollectDate,TestName,LOINC,Result,Units,EncounterID
-P004,2021-08-19,Hemoglobin A1c,4548-4,8.2,%,E4002
-P004,2022-02-10,Hemoglobin A1c,4548-4,7.4,%,
-P004,2021-08-19,Glucose fasting,1558-6,152,mg/dL,E4002
-P002,2019-11-30,Glucose fasting,1558-6,6.1,mmol/L,E2007
-P001,2020-01-15,NT-proBNP,33762-6,2450,pg/mL,E1009
-P003,2017-02-14,SARS-CoV-2 PCR,94500-6,Negative,,E3001
-P001,2020-01-15,Troponin T,6598-7,<0.01,ng/mL,E1009

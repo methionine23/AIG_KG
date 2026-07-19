@@ -1,7 +1,0 @@
-PatientID,RxDate,DrugName,NDC,Dose,Route,Qty,EncounterID
-P001,2020-02-01,Tafamidis 61 mg capsule,00069-0198-30,61 mg,PO daily,30,E1009
-P001,2018-07-23,Furosemide 40 mg tablet,00054-4297-25,40 mg,PO BID,60,E1004
-P002,2019-12-02,Tafamidis 61 mg capsule,00069-0198-30,61 mg,PO daily,30,E2007
-P004,2021-08-19,Metformin 500 mg tablet,00093-7214-01,500 mg,PO BID,180,E4002
-P004,2021-08-19,Metformin 500 mg tablet,00093-7214-01,500 mg,PO BID,180,E4002
-P003,2017-02-14,Gabapentin 300 mg capsule,00071-0803-24,300 mg,PO TID,90,

@@ -143,50 +143,138 @@ Your plan (build a DataFrame yourself, select related columns) is right. Make it
 - **Test shape:** raw fixture CSV → `ingest.load_*()` → assert the resulting contract DataFrame
   equals a small expected table (types, dedup, dates, units). Known input → known output.
 
-Example fixtures illustrating *raw* (messy) → *contract* are in
-[`tests/fixtures/`](../tests/fixtures/): `diagnosis_sample.csv`, `encounter_sample.csv`,
-`med_sample.csv`, `lab_sample.csv`.
+Example fixtures (tab-delimited, matching your real headers) are in
+[`tests/fixtures/`](../tests/fixtures/): `demographics_sample.tsv`, `diagnosis_sample.tsv`,
+`encounter_sample.tsv`, `appointment_sample.tsv`, `lab_sample.tsv`, `medication_sample.tsv`.
+They plant an ATTR signal (P001: carpal tunnel 2015 → HFpEF 2018 → amyloidosis dx + tafamidis
+2020) and the quirks the cleanup handles (ICD dot inconsistency `G56.00`/`G629`, a duplicate
+diagnosis row, a `NA` date, a whitespace-padded id `P002 `, glucose in mg/dL vs mmol/L,
+non-numeric/censored labs `Negative`/`<0.01`, and non-medication rows in the orders table).
 
 ---
 
-## 5. Worked example — selecting into the contract
+## 5. Worked example — selecting into the contract (real schema)
 
 ```python
 import pandas as pd
 
-# raw diagnosis table (your columns will differ — adjust the mapping)
-raw = pd.read_csv("tests/fixtures/diagnosis_sample.csv")
+# diagnosis table (real columns; Dx_Type carries the vocabulary per row)
+raw = pd.read_csv("tests/fixtures/diagnosis_sample.tsv", sep="\t")
+
+VOCAB = {"ICD10": "ICD10CM", "ICD9": "ICD9CM", "HIC": "HIC"}  # HIC = local, crosswalk later
 
 dx = (
     raw.rename(columns={
-        "PatientID":   "person_id",
-        "DxDate":      "event_date",
-        "ICD10":       "source_code",
-        "DxName":      "source_name",
-        "EncounterID": "visit_id",
+        "CURR_CLINIC": "person_id",
+        "Dx_Date":     "event_date",
+        "Dx_Code":     "source_code",
+        "Dx_Desc":     "source_name",
+        "Visit_Nbr":   "visit_id",
     })
     .assign(
         domain="condition",
-        source_vocab="ICD10CM",
+        source_vocab=lambda d: d["Dx_Type"].map(VOCAB).fillna("local"),
+        is_primary=lambda d: d["Primary_Dx_Flag"].isin([1, "Y", "Yes"]),
         person_id=lambda d: d.person_id.astype(str).str.strip(),
         event_date=lambda d: pd.to_datetime(d.event_date, errors="coerce"),
-        source_code=lambda d: d.source_code.str.upper().str.replace(".", "", regex=False),
+        source_code=lambda d: d.source_code.astype(str).str.upper().str.replace(".", "", regex=False),
     )
     .loc[:, ["person_id", "domain", "event_date", "source_code",
-             "source_vocab", "source_name", "visit_id"]]
+             "source_vocab", "source_name", "visit_id", "is_primary"]]
     .dropna(subset=["person_id", "event_date", "source_code"])
     .drop_duplicates(["person_id", "event_date", "source_code"])
 )
 ```
 
-The same pattern (rename → assign/clean → select → drop bad rows → dedupe) applies to each
-table; only the column map and the domain-specific fields change. Once all four are in the
-contract, `pd.concat([...])` gives the single long-event table the pipeline consumes.
+Same pattern (rename → assign/clean → select → drop bad rows → dedupe) for every table; only the
+column map and domain-specific fields change. `pd.concat([...])` then yields the single
+long-event table the builder consumes.
 
 ---
 
-## 6. What I need from you to tailor `ingest`
+## 6. Your source schema → contract (minimal, prototype)
 
-Just a **header row (column names only, no data)** from each of your four tables. With that I
-map your real columns into the contract above and write the `ingest.load_*()` functions and
-their fixture tests to match — no PHI required.
+Mapping your real headers. **Keep only the columns below; drop the rest for the prototype.**
+`CURR_CLINIC` is the patient key everywhere. Populated fields are deliberately minimal; the
+long-term path (live EMR connection → OMOP → BigQuery) produces the *same* contract, so nothing
+downstream changes when the source does.
+
+**Demographics** (`CURR_CLINIC`, `DOB`) → **person**
+| Source | → contract |
+|---|---|
+| `CURR_CLINIC` | `person_id` |
+| `DOB` | `birth_year` (= year of DOB; drop full date) |
+
+*(No sex column provided → `sex` left null.)*
+
+**Diagnosis** → **`domain = condition`**
+| Source | → contract | Notes |
+|---|---|---|
+| `CURR_CLINIC` | `person_id` | |
+| `Dx_Date` | `event_date` | |
+| `Dx_Code` | `source_code` | |
+| `Dx_Type` | `source_vocab` | ICD10→`ICD10CM`, ICD9→`ICD9CM`, HIC→`HIC` (local) |
+| `Dx_Desc` | `source_name` | |
+| `Visit_Nbr` | `visit_id` | join key to encounter → enables `DURING` |
+| `Primary_Dx_Flag` | `is_primary` | optional; helps pick the diagnosis anchor |
+| drop | | `Dx_POA_Flag`, `Encounter_Nbr` (redundant with `Visit_Nbr`) |
+
+**Encounter** → **`domain = visit`** (canonical visit)
+| Source | → contract | Notes |
+|---|---|---|
+| `CURR_CLINIC` | `person_id` | |
+| `Visit_Nbr` | `visit_id` | the key diagnoses join to |
+| `Arrive_Date` | `event_date` | |
+| `Admit_Type` (+`Admit_Source`) | `visit_type` | derive inpatient / ED / outpatient |
+| drop | | `Discharge_Disposition`, `EHR_Encounter_Number` (keep as alt id only if needed); no discharge **date** → `end_date` null |
+
+**Appointment** → **`domain = visit`** *(optional, secondary — U2 density signal)*
+| Source | → contract | Notes |
+|---|---|---|
+| `CURR_CLINIC` | `person_id` | |
+| `Appt_Begin_Date` | `event_date` | |
+| `Appt_Type` / `Appt_Desc` | `source_name` | |
+| `Appt_Clinical_Service` | `specialty` (extra) | outpatient specialty mix |
+| — | `visit_type = 'outpatient'` | appointments; **no `Visit_Nbr`** → not joined to diagnoses |
+
+> Decision: `encounter` is the visit that diagnoses attach to; `appointment` adds outpatient
+> density/specialty for U2. Prototype can start with `encounter` only and fold in `appointment`
+> when U2 needs outpatient granularity.
+
+**Lab** → **`domain = measurement`**
+| Source | → contract | Notes |
+|---|---|---|
+| `CURR_CLINIC` | `person_id` | |
+| `Lab_Date` | `event_date` | `Lab_Time` optional |
+| `Test_Code` | `source_code` | `source_vocab = 'local'` → LOINC crosswalk later |
+| `TestDesc` | `source_name` | |
+| `Resultn` | `value_as_number` | numeric result |
+| `Resultc` | `value_as_string` | non-numeric ("Negative", "<0.01") |
+| `Units` | `unit` | harmonize glucose/HbA1c units |
+| drop | | `Lab_Panel_*`, `Sample_Type_Desc`, `Accession`, `Ranges`/`Rang_Ind*` (keep abnormal flag only if a tool uses it). **No `Visit_Nbr`** → `visit_id` null |
+
+**Medication (orders)** → **`domain = drug`**
+| Source | → contract | Notes |
+|---|---|---|
+| **filter** `Order_Type`/`Order_Type_Desc` = medication | | orders table also holds non-drug orders |
+| `CURR_CLINIC` | `person_id` | |
+| `Order_Date` | `event_date` | `Order_Time` optional |
+| `Order_Code` | `source_code` | `source_vocab = 'local'` → RxNorm crosswalk later |
+| `Order_Name` | `source_name` | |
+| drop | | `Order_ID` (keep as row id only if needed). No dose/qty/route columns → those fields null. **No `Visit_Nbr`** → `visit_id` null |
+
+### Consequences baked into the minimal design
+- **Only diagnoses carry a visit link** (`Visit_Nbr`); labs/meds attach to the patient timeline
+  by date. `DURING` edges therefore exist for conditions only — sufficient for U1/U2/U3.
+- **Local lab/med codes** (`Test_Code`, `Order_Code`) are matched on code+name for the prototype;
+  the `vocab` layer is built to accept Test_Code→LOINC and Order_Code→RxNorm crosswalks later
+  without changing the graph or tools.
+- **The contract is the stable seam.** Whether rows arrive from these CSV extracts, a live EMR
+  connection, or OMOP-in-BigQuery, they land in the same contract — so `graph` and `analytics`
+  never change.
+
+### Two assumptions to confirm
+1. **`CURR_CLINIC` = one ID per patient** (the person key), linked to `DOB` in the demographics
+   table. Everything joins on it.
+2. **`encounter` is the visit** diagnoses attach to (via `Visit_Nbr`); `appointment` is
+   supplementary. Say the word if appointments should be the primary visit instead.

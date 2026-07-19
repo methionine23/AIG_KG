@@ -1,0 +1,9 @@
+CURR_CLINIC	Arrive_Date	Visit_Nbr	Admit_Source	Admit_Type	Discharge_Disposition	EHR_Encounter_Number
+P001	2015-03-11	V1001	Clinic	Outpatient	Home	EHR1001
+P001	2018-07-22	V1004	ED	Emergency	Home	EHR1004
+P001	2019-05-10	V1007	Clinic	Outpatient	Home	EHR1007
+P001	2020-01-15	V1009	Referral	Outpatient	Home	EHR1009
+P002	2016-05-02	V2001	Clinic	Outpatient	Home	EHR2001
+P002	2019-11-30	V2007	ED	Emergency	Inpatient	EHR2007
+P003	2017-02-14	V3001	Clinic	Outpatient	Home	EHR3001
+P004	2021-08-19	V4002	Clinic	Outpatient	Home	EHR4002

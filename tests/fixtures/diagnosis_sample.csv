@@ -1,9 +1,0 @@
-PatientID,DxDate,ICD10,DxName,EncounterID
-P001,2015-03-11,G56.00,Carpal tunnel syndrome unspecified upper limb,E1001
-P001,2018-07-22,I50.31,Acute diastolic (congestive) heart failure,E1004
-P001,2020-01-15,E85.82,Wild-type transthyretin-related amyloidosis,E1009
-P002,2016-05-02,G629,Polyneuropathy unspecified,E2001
-P002 ,2019-11-30,E85.4,Organ-limited amyloidosis,E2007
-P002,2019-11-30,E85.4,Organ-limited amyloidosis,E2007
-P003,NA,G56.00,Carpal tunnel syndrome unspecified upper limb,E3001
-P004,2021-08-19,E11.9,Type 2 diabetes mellitus without complications,E4002

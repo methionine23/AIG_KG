@@ -1,0 +1,7 @@
+CURR_CLINIC	Appt_Begin_Date	Appt_Desc	Appt_Type_Code	Appt_Type	Appt_Clinical_Service_Code	Appt_Clinical_Service
+P001	2015-03-11	New patient visit	01	New	NEU	Neurology
+P001	2019-05-10	Follow-up	02	Return	CAR	Cardiology
+P001	2020-01-15	Genetics consult	03	Consult	GEN	Genetics
+P002	2016-05-02	Follow-up	02	Return	NEU	Neurology
+P004	2021-08-19	Diabetes management	02	Return	END	Endocrinology
+P004	2022-02-10	Follow-up	02	Return	END	Endocrinology
