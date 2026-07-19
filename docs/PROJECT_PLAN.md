@@ -238,3 +238,5 @@ patient nodes like any other event.
 | 2026-07-19 | All of Us access confirmed: **OMOP-CDM in BigQuery** inside the Workbench (not deferred as an afterthought). |
 | 2026-07-19 | Prototype disease scope: **TTR / ATTR only**, disease-configurable via concept sets. |
 | 2026-07-19 | Prototype tools: **U1 delay, U2 density, U3 comorbidity/control, + KG viz explorer** (all four). |
+| 2026-07-19 | `CURR_CLINIC` = unique patient ID (person key). Each table is its own source; cross-table joins verified later, not assumed. |
+| 2026-07-19 | **Graph backbone is Patient + date, not the visit.** Events attach to Patient via `HAS_EVENT` and carry their own date; visit/test links (`DURING`) are optional/best-effort with measured coverage. Tolerates outside-transferred dx, med-without-visit, virtual encounters. Date is the alignment key. |

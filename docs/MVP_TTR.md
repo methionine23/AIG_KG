@@ -46,23 +46,30 @@ first) and by anchor; count of red-flags accrued before diagnosis; per-patient t
 - **Index/anchor:** as above.
 - **Feature lookback:** all history before the anchor.
 
-## Graph query sketch (Cypher, illustrative)
+## Graph query sketch (NetworkX, date-anchored)
 
-```cypher
-// First red-flag feature before ATTR diagnosis, per patient
-MATCH (p:Patient)-[:HAS_VISIT]->(:Visit)<-[:DURING]-(dx:ConditionOccurrence)
-      -[:OF_CONCEPT]->(:Concept)-[:IS_A*0..]->(:Concept {curie:'MONDO:ATTR'})   // dx anchor
-WITH p, min(dx.condition_date) AS t_dx
-MATCH (p)-[:HAS_VISIT]->(:Visit)<-[:DURING]-(f)-[:OF_CONCEPT]->(c:Concept)
-WHERE c.concept_id IN $redflag_concept_ids AND f.event_date < t_dx
-WITH p, t_dx, min(f.event_date) AS t_first_feature
-RETURN p.person_id,
-       duration.inDays(date(t_first_feature), date(t_dx)).days AS delay_days
-ORDER BY delay_days DESC;
+The metric is pure **date arithmetic over the patient's events** — no visit linkage required
+(see `DATA_MODEL.md`, "Capturing timing"). For each patient, walk `HAS_EVENT`, keep events whose
+`OF_CONCEPT` concept is in a concept set, and take the earliest date on each side.
+
+```python
+def delay_days(g, person_id, redflag_ids, anchor_ids):
+    first_feature = min_event_date(g, person_id, redflag_ids)   # earliest red-flag event
+    anchor        = min_event_date(g, person_id, anchor_ids)    # earliest dx / gene test / therapy
+    if first_feature is None or anchor is None:
+        return None
+    return (anchor - first_feature).days
+
+def min_event_date(g, person_id, concept_ids):
+    dates = [g.nodes[ev]["event_date"]
+             for ev in g.successors(("Patient", person_id))         # HAS_EVENT
+             for c in g.successors(ev) if is_concept(c)             # OF_CONCEPT
+             if concept_id_of(c) in concept_ids]
+    return min(dates) if dates else None
 ```
 
-*(`$redflag_concept_ids` and the ATTR anchor concept set come from versioned concept sets;
-the actual expansion uses `concept_ancestor`.)*
+*(`redflag_ids` / `anchor_ids` come from versioned concept sets, expanded down `IS_A`; concept
+ids may be standard or `local:` codes for uncrosswalked lab/med tests.)*
 
 ## Steps to deliver (maps to roadmap P2)
 
