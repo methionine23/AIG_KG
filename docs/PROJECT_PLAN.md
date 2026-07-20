@@ -53,8 +53,10 @@ feature to genetic testing/diagnosis. See [`MVP_TTR.md`](MVP_TTR.md).
 | U1 | **Diagnostic delay** *(MVP)* | Time from first red-flag feature → genetic dx/testing/therapy | condition, procedure, drug |
 | U2 | **Encounter density / care burden** | Count/spacing/type of visits per patient & cohort over time | visit_occurrence |
 | U3 | **Comorbidity & control** | Co-occurrence of conditions (e.g., diabetes) and control markers (glucose/HbA1c) trajectories | condition, measurement, drug |
+| U4 | **CIDP vs mimic screen** | Flag patients *labeled* CIDP with mimic red-flags (autonomic, atrophy, ATTR features) for genetic/amyloid workup; operationalizes the Mayo CIDP calculator | condition (+EDX/notes later) |
 
-All three share the same graph; they differ only in the analytics layer (§6, step 5).
+All use cases share the same graph; they differ only in the analytics layer (§6, step 4).
+See [`USECASE_CIDP.md`](USECASE_CIDP.md) for U4.
 
 ## 3. Design principles
 
@@ -240,3 +242,5 @@ patient nodes like any other event.
 | 2026-07-19 | Prototype tools: **U1 delay, U2 density, U3 comorbidity/control, + KG viz explorer** (all four). |
 | 2026-07-19 | `CURR_CLINIC` = unique patient ID (person key). Each table is its own source; cross-table joins verified later, not assumed. |
 | 2026-07-19 | **Graph backbone is Patient + date, not the visit.** Events attach to Patient via `HAS_EVENT` and carry their own date; visit/test links (`DURING`) are optional/best-effort with measured coverage. Tolerates outside-transferred dx, med-without-visit, virtual encounters. Date is the alignment key. |
+| 2026-07-20 | Added **U4 (CIDP vs mimic screen)** operationalizing the Mayo CIDP calculator; ATTR is an explicit mimic, tying U4 to U1. See `USECASE_CIDP.md`. |
+| 2026-07-20 | **Prototype built:** `aig_kg` package (contract, ingest for all six real tables, vocab concept sets, NetworkX builder, U1–U4 tools, viz, synth generator) + demo notebook; 11 tests green. Builder consumes the **event contract** (not raw OMOP tables) — the EMR ingest, synth, and a future OMOP/BigQuery reader all emit that contract. |

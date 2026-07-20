@@ -18,18 +18,43 @@ real-world questions that flat EMR tables answer poorly:
 
 ## Status
 
-Design complete; prototype next. This repository currently contains the **project plan, data
-model, and prototype spec**, not yet an implementation. Start here:
+**Prototype implemented.** The `aig_kg` package builds the TTR/ATTR KG from EMR extracts (or
+synthetic data) and ships the four use-case tools; a demo notebook orchestrates and visualizes
+it. 11 tests pass.
+
+### Quickstart
+
+```bash
+pip install -e .            # core (pandas, networkx);  add [viz] for pyvis/matplotlib
+pytest -q                   # 11 tests, synthetic + fixtures
+jupyter notebook notebooks/aig_kg_demo.ipynb
+```
+
+```python
+from aig_kg import synth, ingest
+from aig_kg.graph import build_kg
+from aig_kg.analytics import diagnostic_delay, encounter_density, comorbidity_and_control, screen_cidp_mimics
+
+person, events = synth.generate()                 # or: ingest.load_all("path/to/extracts")
+g = build_kg(person, events)
+diagnostic_delay(g)        # U1   encounter_density(g)          # U2
+comorbidity_and_control(g) # U3   screen_cidp_mimics(g)         # U4
+```
+
+### Docs
 
 - [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) — vision, architecture, phased roadmap, and
   the technology recommendation with justification.
 - [`docs/PROTOTYPE.md`](docs/PROTOTYPE.md) — the concrete build spec: package layout, source
   adapters, KG builder, use-case tool APIs, and the notebook flow.
-- [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — the two-layer graph schema (patient instances +
-  ontology backbone).
+- [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — the two-layer graph schema (patient + date
+  backbone; optional event links).
+- [`docs/EMR_INPUT_SPEC.md`](docs/EMR_INPUT_SPEC.md) — the event contract, per-table column
+  mapping for the real schema, cleanup checklist, and testing strategy.
 - [`docs/VOCABULARIES.md`](docs/VOCABULARIES.md) — clinical vocabulary and mapping strategy.
-- [`docs/MVP_TTR.md`](docs/MVP_TTR.md) — the first milestone: measuring ATTR (transthyretin
-  amyloidosis) diagnostic delay.
+- [`docs/MVP_TTR.md`](docs/MVP_TTR.md) — U1: measuring ATTR diagnostic delay.
+- [`docs/USECASE_CIDP.md`](docs/USECASE_CIDP.md) — U4: CIDP-vs-mimic scoring & misdiagnosis
+  screen (operationalizes the Mayo CIDP calculator).
 
 ## Repository layout (proposed)
 

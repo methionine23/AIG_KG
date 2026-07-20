@@ -6,5 +6,6 @@ P001	2019-05-10	2760	HFpEF (legacy)	HIC	0	N	ENC1007	V1007
 P002	2016-05-02	G629	Polyneuropathy unspecified	ICD10	1	N	ENC2001	V2001
 P002 	2019-11-30	E85.4	Organ-limited amyloidosis	ICD10	1	N	ENC2007	V2007
 P002	2019-11-30	E85.4	Organ-limited amyloidosis	ICD10	1	N	ENC2007	V2007
-P003	NA	354.0	Carpal tunnel syndrome	ICD9	1	N	ENC3001	V3001
+P003	2017-02-14	354.0	Carpal tunnel syndrome	ICD9	1	N	ENC3001	V3001
+P003	NA	356.9	Hereditary neuropathy (bad date row)	ICD9	0	N	ENC3002	V3002
 P004	2021-08-19	E11.9	Type 2 diabetes mellitus	ICD10	1	N	ENC4002	V4002
