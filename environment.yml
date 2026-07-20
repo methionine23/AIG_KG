@@ -1,0 +1,24 @@
+# Conda environment for AIG-KG (neurogenetic TTR/ATTR knowledge-graph prototype).
+#   conda env create -f environment.yml
+#   conda activate aig-kg
+#   pytest -q && jupyter notebook notebooks/aig_kg_demo.ipynb
+name: aig-kg
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  # core
+  - pandas>=1.5
+  - networkx>=3.0
+  # notebook + visualization
+  - jupyterlab
+  - matplotlib>=3.6
+  # testing
+  - pytest>=7.0
+  - pip
+  - pip:
+      - pyvis>=0.3          # interactive KG viz (analytics.viz)
+      - -e .               # install the aig_kg package (editable)
+  # --- Optional: OMOP / All of Us (BigQuery) source, add when wiring the second source ---
+  #   - duckdb>=0.9
+  #   - google-cloud-bigquery>=3.0

@@ -1,0 +1,13 @@
+# pip install -r requirements.txt   (then: pip install -e .)
+# Core runtime
+pandas>=1.5
+networkx>=3.0
+# Notebook + visualization
+jupyterlab
+matplotlib>=3.6
+pyvis>=0.3
+# Testing
+pytest>=7.0
+# Optional — OMOP / All of Us (BigQuery) source (uncomment when needed)
+# duckdb>=0.9
+# google-cloud-bigquery>=3.0

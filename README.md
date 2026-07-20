@@ -25,7 +25,12 @@ it. 11 tests pass.
 ### Quickstart
 
 ```bash
-pip install -e .            # core (pandas, networkx);  add [viz] for pyvis/matplotlib
+# Option A — conda
+conda env create -f environment.yml && conda activate aig-kg
+
+# Option B — pip
+pip install -r requirements.txt && pip install -e .
+
 pytest -q                   # 11 tests, synthetic + fixtures
 jupyter notebook notebooks/aig_kg_demo.ipynb
 ```
